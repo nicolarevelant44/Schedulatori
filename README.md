@@ -1,4 +1,4 @@
 # Schedulatori
-First Came, First Served
-Round Robin
-Shortest Job First
+1) First Came, First Served
+2) Round Robin
+3) Shortest Job First
