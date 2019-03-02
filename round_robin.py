@@ -13,6 +13,10 @@ def index_massimo(vett):
 	return max_i
 # fine funzione
 
+pronto_char = "."
+io_char = "X"
+cpu_char = "="
+
 print "Questo programma serve per simulare lo schedulatore Round Robin"
 
 tmax = int(raw_input("Tempo massimo RR: "))
@@ -52,6 +56,7 @@ indici = []
 terminati = []
 dur_pronto = []
 totale_in_pronto = []
+grafico = []
 for list_tempi in tempi:
 	tmp_list = []
 	for index in range(0, len(list_tempi)):
@@ -66,6 +71,7 @@ for list_tempi in tempi:
 	indici.append(0)
 	dur_pronto.append(0)
 	totale_in_pronto.append(0)
+	grafico.append("")
 	terminati.append(False)
 # fine preparazione
 
@@ -116,7 +122,7 @@ while eseguiti < processi:
 			stato_att = 0 # terminato
 			dur_pronto[index] = -1 # così non viene scelto per l'esecuzione
 			continue
-		elif tmp_stati == 1:
+		if tmp_stati == 1: # è uguale a 1
 			if (cpu_disp) and ((processo_cpu == index) or (processo_cpu == -1)):
 				indici[index] += 1
 				conta_uso_cpu += 1
@@ -127,19 +133,36 @@ while eseguiti < processi:
 					dur_pronto[index] = 0
 				cpu_disp = False
 				stato_att = 1 # esecuzione
+				# grafico
+				grafico[index] += cpu_char
 			else:
-				stato_att = 3 # pronto per la CPU
 				dur_pronto[index] += 1
+				stato_att = 3 # pronto per la CPU
+				# grafico
+				grafico[index] += pronto_char
 		else: # è uguale sicuramente a 2
 			indici[index] += 1
 			# conta_uso_cpu = tmax # così si aggiorna a chi dare la cpu
-			dur_pronto[index] = 0
+			dur_pronto[index] = -1
 			stato_att = 2 # I/O
+			
+			# grafico
+			grafico[index] += io_char
 		print "Tempo:", tempo, "processo:", index, "stato:", stato_att
 	# fine for ovvero fine calcolo tempo
 	print
 tempo -= 1 # poiché esegue anche un ciclo senza processi
+
 # fine algoritmo RR
+
+print
+print "\tInizio grafico"
+print
+for index in range(0, processi):
+	print "P" + str(index+1) + ": " + grafico[index]
+print
+print "\tFine grafico"
+print
 
 print "Tempo totale:", tempo
 tot = 0
