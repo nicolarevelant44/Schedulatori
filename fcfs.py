@@ -160,7 +160,7 @@ print
 print "Tempo totale:", tempo
 tot = 0
 for index in range(0, processi):
-	print "Processo", index, ":", totale_in_pronto[index], "in stato di pronto"
+	print "P" + str(index+1) + ":" + str(totale_in_pronto[index]) + " in stato di pronto"
 	tot += totale_in_pronto[index]
 media = float(tot) / float(processi)
 print

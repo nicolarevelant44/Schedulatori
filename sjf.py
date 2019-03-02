@@ -2,26 +2,38 @@
 # -*- coding:utf-8 -*-
 import pdb
 
-def index_massimo(vett):
-	max_i = 0
-	maxx = vett[0]
-	
-	for i in range(1, len(vett)):
-		if vett[i] > maxx:
-			maxx = vett[i]
-			max_i = i
-	return max_i
+def calcolo_durata_cpu(index):
+	if stati_processo[index][indici[index]] == 1:
+		# potrà andare in esecuzione o in stato di pronto
+		i = indici[index] + 1
+		conta = 0
+		while stati_processo[index][i] == 1:
+			i += 1
+			conta += 1
+	else:
+		conta = -1
+	return conta
+# fine
+
+def index_dura_meno():
+	i_min = 0
+	minn = calcolo_durata_cpu(0)
+	for index in range(0, processi):
+		conta = calcolo_durata_cpu(index)
+		if (conta < minn and conta != -1) or (minn == -1):
+			minn = conta
+			i_min = index
+	print
+	print "Debug:", minn
+	print
+	return i_min # se ritorna -1 significa che sono tutti in I/O o terminati
 # fine funzione
 
 pronto_char = "."
 io_char = "X"
 cpu_char = "="
 
-print "Questo programma serve per simulare lo schedulatore Round Robin"
-
-tmax = int(raw_input("Tempo massimo RR: "))
-while tmax < 1 or tmax > 10:
-	tmax = int(raw_input("Tempo massimo RR: "))
+print "Questo programma serve per simulare lo schedulatore Shortest Job First"
 
 print "Inserimento dati processi:"
 processi = int(raw_input("Numero processi: "))
@@ -75,7 +87,7 @@ for list_tempi in tempi:
 	terminati.append(False)
 # fine preparazione
 
-# inizio algoritmo RR
+# inizio algoritmo SJF
 '''
 in pratica c'è un ciclo e imposto alle varibili (liste)
 i valori che avranno alla fine dell'iterazione ovvero
@@ -87,14 +99,13 @@ la cpu massimo uno alla volta, I/O possibile in parallelo
 tempo = 0 # tempo attuale, tutti i processi partono da zero
 eseguiti = 0 # il numero di processi che hanno terminato
 tmp_var = 0
-processo_cpu = -1 # -1 significa che si effettua un cambio CPU tra un e l'altro
-conta_uso_cpu = 0 # se arriva al t di RR porta processo_cpu a -1
 stato_att = 0
 print
 print
 print "Disegno esecuzione CPU:"
 print
-
+processo_cpu = index_dura_meno()
+print "CPU a:", processo_cpu
 while eseguiti < processi:
 	'''
 	se il processo è in I/O è come se non ci fosse
@@ -102,10 +113,10 @@ while eseguiti < processi:
 	'''
 	cpu_disp = True
 	tempo += 1
-	if (conta_uso_cpu == tmax) or (stati_processo[processo_cpu][indici[processo_cpu]] != 1):
-		conta_uso_cpu = 0
-		processo_cpu = index_massimo(dur_pronto)
-		print "CPU a:", processo_cpu, "però vettore è:", dur_pronto
+	if stati_processo[processo_cpu][indici[processo_cpu]] != 1:
+		processo_cpu = index_dura_meno()
+		print "CPU a:", processo_cpu
+	
 	for index in range(0, processi):
 		# per ogni processo vede cosa può fare
 		# se la prossima cosa è I/O allora
@@ -122,10 +133,9 @@ while eseguiti < processi:
 			stato_att = 0 # terminato
 			dur_pronto[index] = -1 # così non viene scelto per l'esecuzione
 			continue
-		if tmp_stati == 1: # è uguale a 1
-			if (cpu_disp) and ((processo_cpu == index) or (processo_cpu == -1)):
+		elif tmp_stati == 1:
+			if (cpu_disp) and ((processo_cpu == index)):
 				indici[index] += 1
-				conta_uso_cpu += 1
 				totale_in_pronto[index] += dur_pronto[index]
 				if stati_processo[index][indici[index]] == 0: # se termina porta durata pronto a -1 (non verrà mai scelto)
 					dur_pronto[index] = -1
@@ -148,12 +158,12 @@ while eseguiti < processi:
 			# grafico
 			grafico[index] += io_char
 		print "Tempo:", tempo, "processo:", index, "stato:", stato_att
-		pdb.set_trace()
+		#pdb.set_trace()
 	# fine for ovvero fine calcolo tempo
 	print
 tempo -= 1 # poiché esegue anche un ciclo senza processi
 
-# fine algoritmo RR
+# fine algoritmo SJF
 
 print
 print "\tInizio grafico"
@@ -167,7 +177,7 @@ print
 print "Tempo totale:", tempo
 tot = 0
 for index in range(0, processi):
-	print "P" + str(index+1) + ":" + str(totale_in_pronto[index]) + " in stato di pronto"
+	print "P" + str(index+1) + ": " + str(totale_in_pronto[index]) + " in stato di pronto"
 	tot += totale_in_pronto[index]
 media = float(tot) / float(processi)
 print
