@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-
+import pdb
 
 def index_massimo(vett):
 	max_i = 0
@@ -136,11 +136,12 @@ while eseguiti < processi:
 		else: # è uguale sicuramente a 2
 			indici[index] += 1
 			# conta_uso_cpu = tmax # così si aggiorna a chi dare la cpu
-			dur_pronto[index] = -1
+			dur_pronto[index] = 0
 			stato_att = 2 # I/O
 			# grafico
 			grafico[index] += io_char
 		print "Tempo:", tempo, "processo:", index, "stato:", stato_att
+		pdb.set_trace()
 	# fine for ovvero fine calcolo tempo
 	print
 tempo -= 1 # poiché esegue anche un ciclo senza processi
