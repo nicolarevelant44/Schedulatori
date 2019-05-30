@@ -2,7 +2,28 @@
 # -*- coding:utf-8 -*-
 from os import path
 
-def calcolo_durata_cpu(index):
+
+def index_massimo(vett): # usato da FCFS e RR
+	max_i = 0
+	maxx = vett[0]
+	
+	for i in range(1, len(vett)):
+		if vett[i] > maxx:
+			maxx = vett[i]
+			max_i = i
+	return max_i
+
+def index_dura_meno(): # usato dal SJF
+	i_min = 0
+	minn = calcolo_durata_cpu(0)
+	for index in range(0, processi):
+		conta = calcolo_durata_cpu(index)
+		if (conta < minn and conta != -1) or (minn == -1):
+			minn = conta
+			i_min = index
+	return i_min # se ritorna -1 significa che sono tutti in I/O o terminati
+
+def calcolo_durata_cpu(index): # usato da index_dura_meno di SJF
 	if stati_processo[index][indici[index]] == 1:
 		# potrà andare in esecuzione o in stato di pronto
 		i = indici[index] + 1
@@ -13,33 +34,12 @@ def calcolo_durata_cpu(index):
 	else:
 		conta = -1
 	return conta
-# fine
 
-def index_massimo(vett):
-	max_i = 0
-	maxx = vett[0]
-	
-	for i in range(1, len(vett)):
-		if vett[i] > maxx:
-			maxx = vett[i]
-			max_i = i
-	return max_i
-# fine funzione
-
-def index_dura_meno():
-	i_min = 0
-	minn = calcolo_durata_cpu(0)
-	for index in range(0, processi):
-		conta = calcolo_durata_cpu(index)
-		if (conta < minn and conta != -1) or (minn == -1):
-			minn = conta
-			i_min = index
-	return i_min # se ritorna -1 significa che sono tutti in I/O o terminati
-# fine funzione
+# fine funzioni
 
 if not path.isfile("tempi.txt"):
-	print "Impossibile legge il file tempi.txt, file non trovato"		
-		
+	print "Impossibile legge il file tempi.txt"
+	print "Error code: 404"
 	exit()
 
 pronto_char = "."
@@ -51,20 +51,44 @@ print "\tSimulatore dei tre schedulatori FCFS, RR, SJF"
 print
 
 
-tempi = [] # lunghezza fissa: processi
+tempi = [] # matrice dei processi (vettore cpu-i/o-cpu per ogni p.)
 processi = 0
 tmax = 0
+columns = 0
 with open("tempi.txt") as fileI:
 	tmax = int(fileI.readline())
-	tmp_riga = fileI.readline()
-	tmp_riga = tmp_riga[0:len(tmp_riga)-1]
-	while tmp_riga:
+	for tmp_riga in fileI:
 		tmp_list = tmp_riga.split(" ")
-		for i in range(0, len(tmp_list)):
+		for i in range(len(tmp_list)):
 			tmp_list[i] = int(tmp_list[i])
+		
+		if len(tmp_list) > columns:
+			columns = len(tmp_list) # conta le colonne massime usate
+		
 		tempi.append(tmp_list) # i numeri sono separati da uno spazio
 		processi += 1
-		tmp_riga = fileI.readline()
+
+# stampa a video dei valori letti da file
+cpu = False
+print "    CPU",
+columns -= 1
+for i in range(columns):
+	if cpu:
+		print "- CPU",
+		cpu = False
+	else:
+		print "- I/O",
+		cpu = True
+print
+
+for i in range(len(tempi)):
+	print "P" + str(i+1) + ":",
+	for val in tempi[i]:
+		print val,
+	print
+print
+print "Legenda: '=' = CPU, 'X' = I/O, '.' = PRONTO"
+print
 
 # inizio decodifica e creazione di nuove liste
 stati_processo = []
@@ -130,7 +154,7 @@ while eseguiti < processi:
 			eseguiti += 1;
 			terminati[index] = True
 			dur_pronto[index] = -1 # così non viene scelto per l'esecuzione
-			continue
+			
 		elif tmp_stati == 1:
 			if (cpu_disp) and ((processo_cpu == index) or (processo_cpu == -1)):
 				indici[index] += 1
@@ -159,12 +183,10 @@ tempo -= 1 # poiché esegue anche un ciclo senza processi
 
 
 print
-print "\tInizio grafico FCFS"
+print "\t----- FCFS -----"
 print
 for index in range(0, processi):
 	print "P" + str(index+1) + ": " + grafico[index]
-print
-print "\tFine grafico FCFS"
 print
 
 # print "Tempo totale:", tempo
@@ -175,7 +197,6 @@ for index in range(0, processi):
 media1 = float(tot) / float(processi)
 print
 print "La media in stato di pronto (FCFS) è:", media1
-print
 print
 
 
@@ -244,8 +265,8 @@ while eseguiti < processi:
 			eseguiti += 1;
 			terminati[index] = True
 			dur_pronto[index] = -1 # così non viene scelto per l'esecuzione
-			continue
-		if tmp_stati == 1: # è uguale a 1
+			
+		elif tmp_stati == 1: # è uguale a 1
 			if (cpu_disp) and ((processo_cpu == index) or (processo_cpu == -1)):
 				indici[index] += 1
 				conta_uso_cpu += 1
@@ -273,12 +294,10 @@ tempo -= 1 # poiché esegue anche un ciclo senza processi
 # fine algoritmo RR
 
 print
-print "\tInizio grafico RR"
+print "\t----- RR -----"
 print
 for index in range(0, processi):
 	print "P" + str(index+1) + ": " + grafico[index]
-print
-print "\tFine grafico RR"
 print
 
 # print "Tempo totale:", tempo
@@ -289,7 +308,6 @@ for index in range(0, processi):
 media2 = float(tot) / float(processi)
 print
 print "La media in stato di pronto (RR) è:", media2
-print
 print
 
 # inizio decodifica e creazione di nuove liste
@@ -356,7 +374,7 @@ while eseguiti < processi:
 			eseguiti += 1;
 			terminati[index] = True
 			dur_pronto[index] = -1 # così non viene scelto per l'esecuzione
-			continue
+			
 		elif tmp_stati == 1:
 			if (cpu_disp) and ((processo_cpu == index)):
 				indici[index] += 1
@@ -384,12 +402,10 @@ tempo -= 1 # poiché esegue anche un ciclo senza processi
 # fine algoritmo SJF
 
 print
-print "\tInizio grafico SJF"
+print "\t----- SJF -----"
 print
 for index in range(0, processi):
 	print "P" + str(index+1) + ": " + grafico[index]
-print
-print "\tFine grafico SJF"
 print
 
 tot = 0
