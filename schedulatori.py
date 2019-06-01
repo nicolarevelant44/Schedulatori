@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 from os import path
 
-
 def index_massimo(vett): # usato da FCFS e RR
 	max_i = 0
 	maxx = vett[0]
@@ -70,6 +69,8 @@ with open("tempi.txt") as fileI:
 
 # stampa a video dei valori letti da file
 cpu = False
+print "Tempo RR:", tmax
+print
 print "    CPU",
 columns -= 1
 for i in range(columns):
@@ -100,12 +101,12 @@ grafico = []
 
 for list_tempi in tempi:
 	tmp_list = []
-	for index in range(0, len(list_tempi)):
+	for index in range(len(list_tempi)):
 		if index % 2 == 0:
-			for xx in range(0, list_tempi[index]):
+			for xx in range(list_tempi[index]):
 				tmp_list.append(1) # ovvero CPU
 		else:
-			for xx in range(0, list_tempi[index]):
+			for xx in range(list_tempi[index]):
 				tmp_list.append(2) # ovvero I/O
 	tmp_list.append(0) # indice la fine del processo
 	stati_processo.append(tmp_list)
@@ -128,7 +129,7 @@ la cpu massimo uno alla volta, I/O possibile in parallelo
 tempo = 0 # tempo attuale, tutti i processi partono da zero
 eseguiti = 0 # il numero di processi che hanno terminato
 
-processo_cpu = -1 # -1 significa che si effettua un cambio CPU tra un e l'altro
+processo_cpu = 0
 
 while eseguiti < processi:
 	'''
@@ -139,8 +140,7 @@ while eseguiti < processi:
 	tempo += 1
 	if stati_processo[processo_cpu][indici[processo_cpu]] != 1:
 		processo_cpu = index_massimo(dur_pronto)
-		# print "CPU a:", processo_cpu, "però vettore è:", dur_pronto
-	for index in range(0, processi):
+	for index in range(processi):
 		# per ogni processo vede cosa può fare
 		# se la prossima cosa è I/O allora
 		# la esegue subito in parallelo agli altri
@@ -209,12 +209,12 @@ totale_in_pronto = []
 grafico = []
 for list_tempi in tempi:
 	tmp_list = []
-	for index in range(0, len(list_tempi)):
+	for index in range(len(list_tempi)):
 		if index % 2 == 0:
-			for xx in range(0, list_tempi[index]):
+			for xx in range(list_tempi[index]):
 				tmp_list.append(1) # ovvero CPU
 		else:
-			for xx in range(0, list_tempi[index]):
+			for xx in range(list_tempi[index]):
 				tmp_list.append(2) # ovvero I/O
 	tmp_list.append(0) # indice la fine del processo
 	stati_processo.append(tmp_list)
@@ -237,8 +237,8 @@ la cpu massimo uno alla volta, I/O possibile in parallelo
 tempo = 0 # tempo attuale, tutti i processi partono da zero
 eseguiti = 0 # il numero di processi che hanno terminato
 
-processo_cpu = -1 # -1 significa che si effettua un cambio CPU tra un e l'altro
-conta_uso_cpu = 0 # se arriva al t di RR porta processo_cpu a -1
+processo_cpu = 0
+conta_uso_cpu = 0 # per il limite RR
 
 while eseguiti < processi:
 	'''
@@ -250,8 +250,7 @@ while eseguiti < processi:
 	if (conta_uso_cpu == tmax) or (stati_processo[processo_cpu][indici[processo_cpu]] != 1):
 		conta_uso_cpu = 0
 		processo_cpu = index_massimo(dur_pronto)
-		# print "CPU a:", processo_cpu, "però vettore è:", dur_pronto
-	for index in range(0, processi):
+	for index in range(processi):
 		# per ogni processo vede cosa può fare
 		# se la prossima cosa è I/O allora
 		# la esegue subito in parallelo agli altri
@@ -302,7 +301,7 @@ print
 
 # print "Tempo totale:", tempo
 tot = 0
-for index in range(0, processi):
+for index in range(processi):
 	print "P" + str(index+1) + ": " + str(totale_in_pronto[index]) + " in stato di pronto"
 	tot += totale_in_pronto[index]
 media2 = float(tot) / float(processi)
@@ -319,12 +318,12 @@ totale_in_pronto = []
 grafico = []
 for list_tempi in tempi:
 	tmp_list = []
-	for index in range(0, len(list_tempi)):
+	for index in range(len(list_tempi)):
 		if index % 2 == 0:
-			for xx in range(0, list_tempi[index]):
+			for xx in range(list_tempi[index]):
 				tmp_list.append(1) # ovvero CPU
 		else:
-			for xx in range(0, list_tempi[index]):
+			for xx in range(list_tempi[index]):
 				tmp_list.append(2) # ovvero I/O
 	tmp_list.append(0) # indice la fine del processo
 	stati_processo.append(tmp_list)
@@ -359,8 +358,7 @@ while eseguiti < processi:
 	tempo += 1
 	if stati_processo[processo_cpu][indici[processo_cpu]] != 1:
 		processo_cpu = index_dura_meno()
-		# print "CPU a:", processo_cpu
-	for index in range(0, processi):
+	for index in range(processi):
 		# per ogni processo vede cosa può fare
 		# se la prossima cosa è I/O allora
 		# la esegue subito in parallelo agli altri
@@ -404,15 +402,15 @@ tempo -= 1 # poiché esegue anche un ciclo senza processi
 print
 print "\t----- SJF -----"
 print
-for index in range(0, processi):
+for index in range(processi):
 	print "P" + str(index+1) + ": " + grafico[index]
 print
 
 tot = 0
-for index in range(0, processi):
+for index in range(processi):
 	print "P" + str(index+1) + ": " + str(totale_in_pronto[index]) + " in stato di pronto"
 	tot += totale_in_pronto[index]
-media3 = float(tot) / float(processi)
+media3 = float(tot) / float(processi) # per esser sicuri che vengano usati numeri a virgola mobile
 print
 print "La media in stato di pronto (SJF) è:", media3
 print
